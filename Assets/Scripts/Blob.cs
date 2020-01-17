@@ -24,12 +24,9 @@ public class Blob : MonoBehaviour
     public Material fastMaterial; //Speedy boi
 
     [Header("Navigation Variables")]
-    public float wanderRadius;
-    public float wanderTimer;
-    [SerializeField] private Transform target;
-    [SerializeField] private NavMeshAgent agent;
-    [SerializeField] private float timer;
-    
+    public NavMeshAgent agent;
+    public float maxWalkDistance;
+    public GameObject ground;
     #endregion
 
     #region Default Functions
@@ -37,9 +34,8 @@ public class Blob : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        timer = wanderTimer;
-        speed = data.speed * speedMultiplier;
-        agent.speed = speed;
+        ground = GameObject.Find("Ground");
+        maxWalkDistance = 20f;
         setMaterial();
     }
 
@@ -79,30 +75,30 @@ public class Blob : MonoBehaviour
     #endregion
 
     #region Navigation Values
-    public static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask)
+    bool RandomPoint(Vector3 center, float range, out Vector3 result)
     {
-        Vector3 randDirection = Random.insideUnitSphere * dist;
-
-        randDirection += origin;
-
-        NavMeshHit navHit;
-
-        NavMesh.SamplePosition(randDirection, out navHit, dist, layermask);
-
-        return navHit.position;
+        for (int i = 0; i < 30; i++)
+        {
+            Vector3 randomPoint = center + Random.insideUnitSphere * range;
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas))
+            {
+                result = hit.position;
+                return true;
+            }
+        }
+        result = Vector3.zero;
+        return false;
     }
     #endregion
 
     #region Navigate
     private void blobWander()
     {
-        timer += Time.deltaTime;
-
-        if (timer >= wanderTimer)
+        Vector3 point;
+        if (RandomPoint(ground.transform.position, maxWalkDistance, out point))
         {
-            Vector3 newPos = RandomNavSphere(transform.position, wanderRadius, -1);
-            agent.SetDestination(newPos);
-            timer = 0;
+            agent.SetDestination(point);
         }
     }
     #endregion
