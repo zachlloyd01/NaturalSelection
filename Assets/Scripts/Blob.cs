@@ -27,6 +27,7 @@ public class Blob : MonoBehaviour
     public NavMeshAgent agent; //Walky boi
     public float maxWalkDistance; //Distance from center the blob can go
     public GameObject ground; //Floory boi
+    public bool atFood;
 
     [Header("Sight Variables")]
     public float fieldOfViewAngle = 110f; //Radius the enemy can see
@@ -37,7 +38,8 @@ public class Blob : MonoBehaviour
     #region Default Functions
     // Start is called before the first frame update
     void Start()
-    {
+    { 
+        atFood = false;
         agent = GetComponent<NavMeshAgent>(); //Relative object instantiation
         ground = GameObject.Find("Ground"); //Set the ground for the random movements
         maxWalkDistance = 20f; //How far can it go? Well in this case.... That
@@ -54,15 +56,17 @@ public class Blob : MonoBehaviour
     {
         GameObject food = FindClosestFood();
         foodInSight = checkInSight(food);
-        if(!foodInSight)
+        if (!atFood)
         {
-            blobWander();
+            if (!foodInSight)
+            {
+                blobWander();
+            }
+            else
+            {
+                goToFood(food);
+            }
         }
-        else
-        {
-            goToFood(food);
-        }
-        
     }
 
     #endregion
@@ -163,6 +167,8 @@ public class Blob : MonoBehaviour
     private void goToFood(GameObject food)
     {
         agent.SetDestination(food.transform.position);
+        atFood = true;
+        
     }
 
     #endregion
