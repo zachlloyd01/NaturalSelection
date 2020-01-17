@@ -27,6 +27,11 @@ public class Blob : MonoBehaviour
     public NavMeshAgent agent; //Walky boi
     public float maxWalkDistance; //Distance from center the blob can go
     public GameObject ground; //Floory boi
+
+    [Header("Sight Variables")]
+    public float fieldOfViewAngle = 110f; //Radius the enemy can see
+    public bool foodInSight; //Can it see any food?
+    public Vector3 foodPosition;
     #endregion
 
     #region Default Functions
@@ -47,7 +52,17 @@ public class Blob : MonoBehaviour
 
     private void FixedUpdate()
     {
-        blobWander();
+        GameObject food = FindClosestFood();
+        foodInSight = checkInSight(food);
+        if(!foodInSight)
+        {
+            blobWander();
+        }
+        else
+        {
+            goToFood(food);
+        }
+        
     }
 
     #endregion
@@ -76,6 +91,7 @@ public class Blob : MonoBehaviour
     #endregion
 
     #region Navigation Values
+
     bool RandomPoint(Vector3 center, float range, out Vector3 result) //A boolean that takes in a center and radius, outputs weather a Vector is on the NavMesh and a Vector to traverse to that is on the mesh
     {
         for (int i = 0; i < 30; i++) //Run 30 times
@@ -91,9 +107,50 @@ public class Blob : MonoBehaviour
         result = Vector3.zero; //Else travel to 0,0
         return false; //The pt was not on the navmesh, will run again next frame
     }
+
+    public GameObject FindClosestFood()
+    {
+        GameObject[] gos;
+        gos = GameObject.FindGameObjectsWithTag("Food");
+        GameObject closest = null;
+        float distance = Mathf.Infinity;
+        Vector3 position = transform.position;
+        foreach (GameObject go in gos)
+        {
+            Vector3 diff = go.transform.position - position;
+            float curDistance = diff.sqrMagnitude;
+            if (curDistance < distance)
+            {
+                closest = go;
+                distance = curDistance;
+            }
+        }
+        return closest;
+    }
+
+    public bool checkInSight(GameObject food)
+    {
+        Vector3 direction = food.transform.position - transform.position;
+        float angle = Vector3.Angle(direction, transform.forward);
+
+        if(angle < fieldOfViewAngle)
+        {
+            RaycastHit hit;
+            if(Physics.Raycast(transform.position + transform.up, direction.normalized, out hit, 6))
+            {
+                if(hit.collider.gameObject == food)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     #endregion
 
     #region Navigate
+
     private void blobWander()
     {
         Vector3 point; //An unset Vector to be used to go to
@@ -102,6 +159,13 @@ public class Blob : MonoBehaviour
             agent.SetDestination(point); //Make the agent go to the point if its on the navmesh
         }
     }
+
+    private void goToFood(GameObject food)
+    {
+        agent.SetDestination(food.transform.position);
+    }
+
     #endregion
+
 
 }
