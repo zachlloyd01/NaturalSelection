@@ -8,6 +8,8 @@ public class Blob : MonoBehaviour
 
     #region variables
 
+    private bool goingToFood;
+
     [Header("Creature Specific")]
     public blobData data; //Get attributes from here
 
@@ -33,20 +35,38 @@ public class Blob : MonoBehaviour
     public float fieldOfViewAngle = 110f; //Radius the enemy can see
     public bool foodInSight; //Can it see any food?
     public Vector3 foodPosition;
+    public float maxRange = 6;
 
-    private bool goingToFood;
+    [Header("Values")]
+    public Dictionary<string, string> genes = new Dictionary<string, string>(); //Gene values by string-key
+
     #endregion
 
     #region Default Functions
     // Start is called before the first frame update
     void Start()
     {
+        #region Dictionary Values
+
+        genes.Add("speed", $"{data.speed}");
+        genes.Add("aggression", $"{data.aggression}");
+        genes.Add("sight", $"{data.sight}");
+
+        #endregion
+
+        #region Initial Value Setting
+
         goingToFood = false;
         atFood = false;
         agent = GetComponent<NavMeshAgent>(); //Relative object instantiation
         ground = GameObject.Find("Ground"); //Set the ground for the random movements
         maxWalkDistance = 20f; //How far can it go? Well in this case.... That
+
+        #endregion
+
+        #region Function Calls
         setMaterial();
+        #endregion
     }
 
     // Update is called once per frame
@@ -57,45 +77,44 @@ public class Blob : MonoBehaviour
 
     private void FixedUpdate()
     {
-        
-        GameObject food = FindClosestFood();
-       // Debug.DrawRay(transform.position, (food.transform.position - transform.position), Color.red);
-        if (!atFood)
+
+        GameObject food = FindClosestFood(); //Get the array of all food items and check the closest one by distance
+
+        #region AI Movement Logic
+        if (!atFood) //If the agent is not already at food
         {
-            foodInSight = checkInSight(food);
-            if (!foodInSight && !goingToFood)
+            foodInSight = checkInSight(food); //Check if the food is within FOV
+            if (!foodInSight && !goingToFood) //If no food is in sight, and it is not going to one already (redundancy)
             {
-                blobWander();
+                blobWander(); //Wander aimlessly (sorta... computer randmoness is only so good)
             }
             else if(!goingToFood)
             {
-                goingToFood = true;
-                goToFood(food);
+                goingToFood = true; //It is going to food!
+                goToFood(food); //Go to the food
             }
             else
             {
-                if (!agent.pathPending)
+                if (!agent.pathPending) //If there is no destination being baked on the navmesh
                 {
-                    if (agent.remainingDistance <= 2)
+                    if (agent.remainingDistance <= 2) //If the distance to food is less than 2 units
                     {
-                        agent.enabled = false;
-                        if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
+                        agent.enabled = false; //turn off the agent
+                        if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f) //If there is no path or the agent is not moving (both are usually true, but just in case it hasn't stopped due to a frame skip)
                         {
-                            Debug.Log("here");
-                            atFood = true;
-                            goingToFood = false;
-                            Destroy(food);
-                            agent.enabled = true;
-                            agent.destination = Vector3.zero;
+                            atFood = true; //The blob is at the food, stop running the 
+                            goingToFood = false; //We are not travelling anymore
+                            Destroy(food); //Destroy the food  (no other blobs can have it)
+                            agent.enabled = true; //reenable the navmesh
+                           // agent.destination = new Vector3(Mathf.Infinity, transform.position.y, Mathf.Infinity);
                         }
                     }
                 }
             }
-            // Check if we've reached the destination
-
         }
+        #endregion
     }
-    
+
     #endregion
 
     #region Value-Setting Functions
@@ -141,19 +160,19 @@ public class Blob : MonoBehaviour
 
     public GameObject FindClosestFood()
     {
-        GameObject[] gos;
-        gos = GameObject.FindGameObjectsWithTag("Food");
-        GameObject closest = null;
-        float distance = Mathf.Infinity;
-        Vector3 position = transform.position;
-        foreach (GameObject go in gos)
+        GameObject[] gos; //The array of cookeis on the map
+        gos = GameObject.FindGameObjectsWithTag("Food"); //Set the array to be all objects with the food tag (added on spawn)
+        GameObject closest = null; //The nearest piece of food
+        float distance = Mathf.Infinity; //The distance is infinite until one food is defined
+        Vector3 position = transform.position; //Current Blob position on the map (This is run during fixed update... could be delayed by a frame or 2)
+        foreach (GameObject go in gos) //Every obj in the array
         {
-            Vector3 diff = go.transform.position - position;
-            float curDistance = diff.sqrMagnitude;
-            if (curDistance < distance)
+            Vector3 diff = go.transform.position - position; //The Vector to position onto
+            float curDistance = diff.sqrMagnitude; //The distance as given by the vector
+            if (curDistance < distance) //If the distance is not larger than previous (assuming there is food on the map)
             {
-                closest = go;
-                distance = curDistance;
+                closest = go; //Current closest GO
+                distance = curDistance; //reset distance var (so it gets pro
             }
         }
         return closest;
@@ -161,7 +180,7 @@ public class Blob : MonoBehaviour
 
     public bool checkInSight(GameObject food)
     {
-        float maxRange = 6;
+        
         RaycastHit hit;
 
         if (Vector3.Distance(transform.position, food.transform.position) < maxRange)
@@ -201,6 +220,5 @@ public class Blob : MonoBehaviour
     }
 
     #endregion
-
 
 }

@@ -6,5 +6,6 @@ using UnityEngine;
 public class blobData : ScriptableObject
 {
     public float speed;
-
+    public float aggression;
+    public float sight;
 }
