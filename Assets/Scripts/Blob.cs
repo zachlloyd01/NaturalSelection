@@ -10,6 +10,7 @@ public class Blob : MonoBehaviour
     #region variables
 
     private bool goingToFood;
+    private bool eaten;
     private GameObject sceneManager;
     public bool run;
 
@@ -61,6 +62,7 @@ public class Blob : MonoBehaviour
 
         #region Initial Value Setting
 
+        eaten = false;
         goingToFood = false;
         atFood = false;
         run = false;
@@ -233,17 +235,30 @@ public class Blob : MonoBehaviour
                                 atFood = true; //The blob is at the food, stop running the 
                                 goingToFood = false; //We are not travelling anymore
                                 Destroy(food); //Destroy the food  (no other blobs can have it)
+                                eaten = true;
                                 agent.enabled = true; //reenable the navmesh
-                                /*agent.destination = new Vector3(Mathf.Infinity, transform.position.y, Mathf.Infinity);*/
-                                run = false;
                             }
                         }
                     }
+                }
+                if(eaten && energy <= 25)
+                {
+                    toEdge();
+                }
+                else
+                {
+                    blobWander();
                 }
             }
         }
     }
 
+    private void toEdge()
+    {
+        Vector3 position = transform.position;
+        Vector3 direction = new Vector3(UnityEngine.Random.Range(0, Mathf.Infinity), position.y, UnityEngine.Random.Range(0, Mathf.Infinity));
+        agent.SetDestination(position + direction);
+    }
     #endregion
 
     #region Reproduction
