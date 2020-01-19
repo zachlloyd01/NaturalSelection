@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -38,7 +39,7 @@ public class Blob : MonoBehaviour
     public float maxRange = 6;
 
     [Header("Values")]
-    public Dictionary<string, string> genes = new Dictionary<string, string>(); //Gene values by string-key
+    public Dictionary<string, float> genes = new Dictionary<string, float>(); //Gene values by string-key
 
     #endregion
 
@@ -48,9 +49,9 @@ public class Blob : MonoBehaviour
     {
         #region Dictionary Values
 
-        genes.Add("speed", $"{data.speed}");
-        genes.Add("aggression", $"{data.aggression}");
-        genes.Add("sight", $"{data.sight}");
+        genes.Add("speed", data.speed);
+        genes.Add("aggression", data.aggression);
+        genes.Add("sight", data.sight);
 
         #endregion
 
@@ -146,7 +147,7 @@ public class Blob : MonoBehaviour
     {
         for (int i = 0; i < 30; i++) //Run 30 times
         {
-            Vector3 randomPoint = center + Random.insideUnitSphere * range; //Random point in a sphere with height/radius of 1
+            Vector3 randomPoint = center + UnityEngine.Random.insideUnitSphere * range; //Random point in a sphere with height/radius of 1
             NavMeshHit hit;
             if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas)) //If the generated point is on the navmesh
             {
@@ -219,6 +220,42 @@ public class Blob : MonoBehaviour
         
     }
 
+    #endregion
+
+    #region Reproduction
+    private void passTraits()
+    {
+        Dictionary<string, float> passedVals = new Dictionary<string, float>();
+        foreach(KeyValuePair<string, float> gene in genes)
+        {
+            int i = UnityEngine.Random.Range(1, 101);
+            if (i <= 5)
+            {
+                int j = UnityEngine.Random.Range(1, 11);
+                int val = UnityEngine.Random.Range(1, 101);
+                if (j <= 5)
+                {
+                    passedVals.Add(gene.Key, gene.Value - (.01f * val));
+                }
+                else
+                {
+                    passedVals.Add(gene.Key, gene.Value + (.01f * val));
+                }
+            }
+            else
+            {
+                passedVals.Add(gene.Key, gene.Value);
+            }
+        }
+        blobData newBlob = new blobData(passedVals);
+
+        createBlob();
+    }
+
+    private void createBlob()
+    {
+        throw new NotImplementedException();
+    }
     #endregion
 
 }
