@@ -20,6 +20,7 @@ public class Blob : MonoBehaviour
     [Header("Global Attributes")]
     [SerializeField] private float speedMultiplier = 10; //Default value to multiply the randomized speed value by
     public float energy; //How much energy the creature has
+    public GameObject blobPrefab;
     
     [Header("Materials")]
     public Material defaultMaterial; //Default boi
@@ -247,14 +248,18 @@ public class Blob : MonoBehaviour
                 passedVals.Add(gene.Key, gene.Value);
             }
         }
-        blobData newBlob = new blobData(passedVals);
+        blobData newBlob = ScriptableObject.CreateInstance<blobData>();
+        newBlob.aggression = passedVals["aggression"];
+        newBlob.speed = passedVals["speed"];
+        newBlob.sight = passedVals["sight"];
 
-        createBlob();
+        createBlob(newBlob);
     }
 
-    private void createBlob()
+    private void createBlob(blobData newBlob)
     {
-        throw new NotImplementedException();
+        blobPrefab = Instantiate(blobPrefab);
+        blobPrefab.GetComponent<Blob>().data = newBlob;
     }
     #endregion
 
