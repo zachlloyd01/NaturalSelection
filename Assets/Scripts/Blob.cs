@@ -33,12 +33,15 @@ public class Blob : MonoBehaviour
     public float fieldOfViewAngle = 110f; //Radius the enemy can see
     public bool foodInSight; //Can it see any food?
     public Vector3 foodPosition;
+
+    private bool goingToFood;
     #endregion
 
     #region Default Functions
     // Start is called before the first frame update
     void Start()
-    { 
+    {
+        goingToFood = false;
         atFood = false;
         agent = GetComponent<NavMeshAgent>(); //Relative object instantiation
         ground = GameObject.Find("Ground"); //Set the ground for the random movements
@@ -54,21 +57,45 @@ public class Blob : MonoBehaviour
 
     private void FixedUpdate()
     {
+        
         GameObject food = FindClosestFood();
-        foodInSight = checkInSight(food);
+       // Debug.DrawRay(transform.position, (food.transform.position - transform.position), Color.red);
         if (!atFood)
         {
-            if (!foodInSight)
+            foodInSight = checkInSight(food);
+            if (!foodInSight && !goingToFood)
             {
                 blobWander();
             }
-            else
+            else if(!goingToFood)
             {
+                goingToFood = true;
                 goToFood(food);
             }
+            else
+            {
+                if (!agent.pathPending)
+                {
+                    if (agent.remainingDistance <= 2)
+                    {
+                        agent.enabled = false;
+                        if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
+                        {
+                            Debug.Log("here");
+                            atFood = true;
+                            goingToFood = false;
+                            Destroy(food);
+                            agent.enabled = true;
+                            agent.destination = Vector3.zero;
+                        }
+                    }
+                }
+            }
+            // Check if we've reached the destination
+
         }
     }
-
+    
     #endregion
 
     #region Value-Setting Functions
@@ -134,16 +161,17 @@ public class Blob : MonoBehaviour
 
     public bool checkInSight(GameObject food)
     {
-        Vector3 direction = food.transform.position - transform.position;
-        float angle = Vector3.Angle(direction, transform.forward);
+        float maxRange = 6;
+        RaycastHit hit;
 
-        if(angle < fieldOfViewAngle)
+        if (Vector3.Distance(transform.position, food.transform.position) < maxRange)
         {
-            RaycastHit hit;
-            if(Physics.Raycast(transform.position + transform.up, direction.normalized, out hit, 6))
+            if (Physics.Raycast(transform.position, (food.transform.position - transform.position), out hit, maxRange))
             {
-                if(hit.collider.gameObject == food)
+               // Debug.Log(hit.transform);
+                if (hit.collider.gameObject == food)
                 {
+                   // Debug.Log("true");
                     return true;
                 }
             }
@@ -167,7 +195,8 @@ public class Blob : MonoBehaviour
     private void goToFood(GameObject food)
     {
         agent.SetDestination(food.transform.position);
-        atFood = true;
+        Debug.Log("going!");
+
         
     }
 

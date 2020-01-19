@@ -10,15 +10,15 @@ public class Spawner : MonoBehaviour
     [Header("Variables")]
     [SerializeField] private GameObject blob;
     [SerializeField] private GameObject food;
-    private float radius = 10f;
+    [SerializeField] private float radius;
     public GameObject ground;
-    private GameObject cookies;
     #endregion
 
     #region Default Functions
     // Start is called before the first frame update
     void Start()
     {
+        radius = (ground.GetComponent<Collider>().bounds.size.x) / 2f;
         spawnFood();
     }
 
@@ -38,14 +38,20 @@ public class Spawner : MonoBehaviour
     #region Spawning Logic
     private void spawnFood()
     {
-        for(int i = 0; i < 30; i++)
+        bool spawned;
+        for (int i = 0; i < 30; i++)
         {
-            Vector3 point; //An unset Vector to be used to go to
-            if (RandomPoint(ground.transform.position, radius, out point)) //Outputs the point, takes in the ground and radius values
+            spawned = false;
+            while (!spawned)
             {
-                food = Instantiate(food, point, Quaternion.identity);
-                food.tag = "Food";
-                food.name = $"Food - {food.transform.position}";
+                Vector3 point; //An unset Vector to be used to go to
+                if (RandomPoint(ground.transform.position, radius, out point)) //Outputs the point, takes in the ground and radius values
+                {
+                    food = Instantiate(food, point, Quaternion.identity);
+                    food.tag = "Food";
+                    food.name = $"Food - {food.transform.position} - Increment: {i}";
+                    spawned = true;
+                }
             }
         }
     }
