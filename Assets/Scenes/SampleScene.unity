@@ -321,9 +321,10 @@ GameObject:
   m_Component:
   - component: {fileID: 930081886}
   - component: {fileID: 930081887}
+  - component: {fileID: 930081888}
   m_Layer: 0
   m_Name: SceneManager
-  m_TagString: Untagged
+  m_TagString: GameController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -358,6 +359,19 @@ MonoBehaviour:
   food: {fileID: 6425794842584953711, guid: 51eeae250291daa40b30bd1923510044, type: 3}
   radius: 10
   ground: {fileID: 1234922561}
+--- !u!114 &930081888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 930081885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c859195c5b400d47bc550eccea592df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDay: 0
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
