@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 5239096709805350178}
   m_Layer: 0
   m_Name: Blob
-  m_TagString: Untagged
+  m_TagString: creature
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -108,16 +108,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b54620a30ab43041a5b4f2c3dff7941, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  run: 0
   data: {fileID: 11400000, guid: 4d13e66ca51e0f543a6fc484bc90026b, type: 2}
   speed: 0
+  onEdge: 0
   speedMultiplier: 0
   energy: 100
+  blobPrefab: {fileID: 0}
   defaultMaterial: {fileID: 2100000, guid: 77a8161d7a7055547a7c4a78f96db200, type: 2}
   slowMaterial: {fileID: 2100000, guid: 1c5ff0526c2cf7f469720bd76327aa0c, type: 2}
   fastMaterial: {fileID: 2100000, guid: 43387e2d584703b47977b45aada6cf8a, type: 2}
   agent: {fileID: 0}
   maxWalkDistance: 0
   ground: {fileID: 0}
+  atFood: 0
+  fieldOfViewAngle: 0
+  foodInSight: 0
+  foodPosition: {x: 0, y: 0, z: 0}
+  maxRange: 6
 --- !u!195 &8884963166818810237
 NavMeshAgent:
   m_ObjectHideFlags: 0

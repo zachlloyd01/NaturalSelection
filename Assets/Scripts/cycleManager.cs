@@ -71,5 +71,6 @@ public class cycleManager : MonoBehaviour
         }
         isDay = true;
         setDay();
+
     }
 }
