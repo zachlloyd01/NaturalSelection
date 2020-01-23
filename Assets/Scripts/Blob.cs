@@ -235,6 +235,7 @@ public class Blob : MonoBehaviour
                                 atFood = true; //The blob is at the food, stop running the 
                                 goingToFood = false; //We are not travelling anymore
                                 Destroy(food); //Destroy the food  (no other blobs can have it)
+                                Debug.Log("food eaten");
                                 eaten = true;
                                 agent.enabled = true; //reenable the navmesh
                             }

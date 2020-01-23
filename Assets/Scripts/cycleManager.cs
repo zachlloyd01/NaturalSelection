@@ -9,6 +9,11 @@ public class cycleManager : MonoBehaviour
     void Start()
     {
         isDay = false;
+        foreach (GameObject go in GameObject.FindGameObjectsWithTag("creature"))
+        {
+            go.GetComponent<Blob>().run = true;
+        }
+
     }
 
     // Update is called once per frame
