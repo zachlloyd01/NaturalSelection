@@ -7,7 +7,7 @@ using UnityEngine.AI;
 public class Blob : MonoBehaviour
 {
 
-    #region variables
+    #region Variables
 
     private bool goingToFood;
     private bool eaten;
@@ -25,6 +25,7 @@ public class Blob : MonoBehaviour
     [SerializeField] private float speedMultiplier = 10; //Default value to multiply the randomized speed value by
     public float energy; //How much energy the creature has
     public GameObject blobPrefab;
+    public GameObject spawnPosition;
     
     [Header("Materials")]
     public Material defaultMaterial; //Default boi
@@ -74,7 +75,6 @@ public class Blob : MonoBehaviour
         fieldOfViewAngle = genes["sight"];
 
         ground = GameObject.Find("Ground"); //Set the ground for the random movements
-        maxWalkDistance = 20f; //How far can it go? Well in this case.... That
 
         #endregion
 
@@ -86,7 +86,14 @@ public class Blob : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(agent.transform.position != agent.destination)
+        {
+            onEdge = false;
+        }
+        else
+        {
+            onEdge = true;
+        }
     }
 
     private void FixedUpdate()
@@ -196,6 +203,7 @@ public class Blob : MonoBehaviour
         Vector3 point; //An unset Vector to be used to go to
         if (RandomPoint(ground.transform.position, maxWalkDistance, out point)) //Outputs the point, takes in the ground and radius values
         {
+            Debug.Log("Wandering");
             agent.SetDestination(point); //Make the agent go to the point if its on the navmesh
         }
     }
@@ -235,20 +243,12 @@ public class Blob : MonoBehaviour
                                 atFood = true; //The blob is at the food, stop running the 
                                 goingToFood = false; //We are not travelling anymore
                                 Destroy(food); //Destroy the food  (no other blobs can have it)
-                                Debug.Log("food eaten");
                                 eaten = true;
                                 agent.enabled = true; //reenable the navmesh
+                                toEdge();
                             }
                         }
                     }
-                }
-                if(eaten && energy <= 25)
-                {
-                    toEdge();
-                }
-                else
-                {
-                    blobWander();
                 }
             }
         }
@@ -256,9 +256,13 @@ public class Blob : MonoBehaviour
 
     private void toEdge()
     {
-        Vector3 position = transform.position;
-        Vector3 direction = new Vector3(UnityEngine.Random.Range(0, Mathf.Infinity), position.y, UnityEngine.Random.Range(0, Mathf.Infinity));
-        agent.SetDestination(position + direction);
+        // agent.enabled = true;
+        NavMeshHit hit;
+        if(NavMesh.FindClosestEdge(transform.position, out hit, NavMesh.AllAreas))
+        {
+            agent.destination = hit.position;
+        }
+        
     }
     #endregion
 
@@ -297,7 +301,7 @@ public class Blob : MonoBehaviour
 
     private void createBlob(blobData newBlob)
     {
-        blobPrefab = Instantiate(blobPrefab);
+        blobPrefab = Instantiate(blobPrefab, spawnPosition.transform.position, Quaternion.identity);
         blobPrefab.GetComponent<Blob>().data = newBlob;
     }
     #endregion

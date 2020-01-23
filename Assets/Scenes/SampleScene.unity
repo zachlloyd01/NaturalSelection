@@ -187,8 +187,19 @@ PrefabInstance:
       propertyPath: m_Name
       value: Blob
       objectReference: {fileID: 0}
+    - target: {fileID: 8183839998968855526, guid: 568a6eae83456d0449dca97ec3acb9bc,
+        type: 3}
+      propertyPath: spawnPosition
+      value: 
+      objectReference: {fileID: 311832929}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 568a6eae83456d0449dca97ec3acb9bc, type: 3}
+--- !u!1 &311832929 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5457210634301726725, guid: 568a6eae83456d0449dca97ec3acb9bc,
+    type: 3}
+  m_PrefabInstance: {fileID: 311832928}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &424755224
 GameObject:
   m_ObjectHideFlags: 0
