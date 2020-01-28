@@ -11,6 +11,7 @@ public class Blob : MonoBehaviour
 
     private bool goingToFood;
     private bool eaten;
+    private bool goingToEdge;
     private GameObject sceneManager;
     public bool run;
 
@@ -42,7 +43,7 @@ public class Blob : MonoBehaviour
     public float fieldOfViewAngle; //Radius the enemy can see
     public bool foodInSight; //Can it see any food?
     public Vector3 foodPosition;
-    public float maxRange = 6;
+    public float maxRange = 19;
 
     [Header("Values")]
     public Dictionary<string, float> genes = new Dictionary<string, float>(); //Gene values by string-key
@@ -54,6 +55,7 @@ public class Blob : MonoBehaviour
     void Start()
     {
         #region Dictionary Values
+
         onEdge = false;
         genes.Add("speed", data.speed);
         genes.Add("aggression", data.aggression);
@@ -67,6 +69,7 @@ public class Blob : MonoBehaviour
         goingToFood = false;
         atFood = false;
         run = false;
+        goingToEdge = false;
 
         agent = GetComponent<NavMeshAgent>(); //Relative object instantiation
         sceneManager = GameObject.FindGameObjectWithTag("GameController");
@@ -75,6 +78,8 @@ public class Blob : MonoBehaviour
         fieldOfViewAngle = genes["sight"];
 
         ground = GameObject.Find("Ground"); //Set the ground for the random movements
+
+        
 
         #endregion
 
@@ -86,13 +91,20 @@ public class Blob : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(agent.transform.position != agent.destination)
+        
+       if(goingToEdge == true)
         {
-            onEdge = false;
-        }
-        else
-        {
-            onEdge = true;
+            if(gameObject.transform.position == agent.destination)
+            {
+                onEdge = true;
+                energy = 100;
+                run = false;
+                goingToEdge = false;
+            }
+            else
+            {
+                return;
+            }
         }
     }
 
@@ -130,28 +142,25 @@ public class Blob : MonoBehaviour
         }
     }
 
-    private void energyLower()
+    public void energyLower()
     {
-        energy -= (10 / genes["speed"]) * Time.fixedDeltaTime; //Energy lowers as a factor of speed over fixed time
+        if (run)
+        {
+            energy -= (10 / genes["speed"]) * Time.fixedDeltaTime; //Energy lowers as a factor of speed over fixed time
+        }
     }
     #endregion
 
     #region Navigation Values
 
-    bool RandomPoint(Vector3 center, float range, out Vector3 result) //A boolean that takes in a center and radius, outputs weather a Vector is on the NavMesh and a Vector to traverse to that is on the mesh
+    Vector3 RandomPoint(float range) //A boolean that takes in a center and radius, outputs weather a Vector is on the NavMesh and a Vector to traverse to that is on the mesh
     {
-        for (int i = 0; i < 30; i++) //Run 30 times
-        {
-            Vector3 randomPoint = center + UnityEngine.Random.insideUnitSphere * range; //Random point in a sphere with height/radius of 1
-            NavMeshHit hit;
-            if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas)) //If the generated point is on the navmesh
-            {
-                result = hit.position; //output the resultant point
-                return true; //Say that it is on the mesh
-            }
-        }
-        result = Vector3.zero; //Else travel to 0,0
-        return false; //The pt was not on the navmesh, will run again next frame
+        Vector3 randPosition = UnityEngine.Random.insideUnitSphere * maxWalkDistance;
+        randPosition += transform.position;
+        NavMeshHit hit;
+        NavMesh.SamplePosition(randPosition, out hit, range, 1);
+        Vector3 result = hit.position;
+        return result;
     }
 
     public GameObject FindClosestFood()
@@ -200,12 +209,7 @@ public class Blob : MonoBehaviour
 
     private void blobWander()
     {
-        Vector3 point; //An unset Vector to be used to go to
-        if (RandomPoint(ground.transform.position, maxWalkDistance, out point)) //Outputs the point, takes in the ground and radius values
-        {
-            Debug.Log("Wandering");
-            agent.SetDestination(point); //Make the agent go to the point if its on the navmesh
-        }
+        agent.SetDestination(RandomPoint(maxWalkDistance));
     }
 
     private void goToFood(GameObject food)
@@ -262,7 +266,7 @@ public class Blob : MonoBehaviour
         {
             agent.destination = hit.position;
         }
-        
+        goingToEdge = true;
     }
     #endregion
 

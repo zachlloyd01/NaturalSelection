@@ -12,6 +12,7 @@ public class Spawner : MonoBehaviour
     [SerializeField] private GameObject food;
     [SerializeField] private float radius;
     public GameObject ground;
+    public float foodAmount;
     #endregion
 
     #region Default Functions
@@ -39,7 +40,7 @@ public class Spawner : MonoBehaviour
     private void spawnFood()
     {
         bool spawned;
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < foodAmount; i++)
         {
             spawned = false;
             while (!spawned)
@@ -56,6 +57,7 @@ public class Spawner : MonoBehaviour
         }
     }
 
+    
     #endregion
 
     #region Values

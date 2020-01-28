@@ -5,6 +5,7 @@ using UnityEngine;
 public class cycleManager : MonoBehaviour
 {
     public bool isDay;
+    private List<GameObject> doneCreatures = new List<GameObject>();
     // Start is called before the first frame update
     void Start()
     {
@@ -24,8 +25,6 @@ public class cycleManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        List<GameObject> doneCreatures = new List<GameObject>();
-
         foreach (GameObject go in GameObject.FindGameObjectsWithTag("creature"))
         {
             if(go.GetComponent<Blob>().energy <= 0)
