@@ -4,12 +4,10 @@ using UnityEngine;
 
 public class cycleManager : MonoBehaviour
 {
-    public bool isDay;
     private List<GameObject> doneCreatures = new List<GameObject>();
     // Start is called before the first frame update
     void Start()
     {
-        isDay = false;
         foreach (GameObject go in GameObject.FindGameObjectsWithTag("creature"))
         {
             go.GetComponent<Blob>().run = true;
@@ -40,30 +38,17 @@ public class cycleManager : MonoBehaviour
                 }
             }
         }
-        foreach (GameObject go in GameObject.FindGameObjectsWithTag("creature"))
-        {
-            if(doneCreatures.Contains(go)) { }
-
-            else
-            {
-                return;
-            }
-        }
         if(doneCreatures.Count == GameObject.FindGameObjectsWithTag("creature").Length)
         {
-            isDay = false;
             setState();
         }
     }
 
     private void setDay()
     {
-        if(isDay)
+        foreach (GameObject go in GameObject.FindGameObjectsWithTag("creature"))
         {
-            foreach(GameObject go in GameObject.FindGameObjectsWithTag("creature"))
-            {
-                go.GetComponent<Blob>().run = true;
-            }
+            go.GetComponent<Blob>().run = true;
         }
     }
 
@@ -73,7 +58,6 @@ public class cycleManager : MonoBehaviour
         {
             go.GetComponent<Blob>().passTraits();
         }
-        isDay = true;
         setDay();
 
     }
